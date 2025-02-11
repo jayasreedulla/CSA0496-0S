@@ -1,0 +1,85 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#define MAX_BLOCKS 10
+#define MAX_FILE_SIZE 5
+struct DiskBlock {
+    int blockNum;
+    char data[100]; 
+};
+struct File {
+    int fileSize;
+    int allocatedBlocks[MAX_FILE_SIZE];
+};
+struct DiskBlock disk[MAX_BLOCKS];
+void initializeDisk() {
+    for (int i = 0; i < MAX_BLOCKS; i++) {
+        disk[i].blockNum = i;
+        memset(disk[i].data, 0, sizeof(disk[i].data)); 
+    }
+}
+void printDiskState() {
+    printf("\nDisk State:\n");
+    for (int i = 0; i < MAX_BLOCKS; i++) {
+        printf("Block %d: %s\n", disk[i].blockNum, disk[i].data);
+    }
+}
+int allocateFile(struct File *file, int requiredBlocks) {
+    if (requiredBlocks > MAX_FILE_SIZE) {
+        printf("Error: File size exceeds maximum allowed size!\n");
+        return -1;
+    }
+    int startBlock = -1;
+    for (int i = 0; i < MAX_BLOCKS - requiredBlocks + 1; i++) {
+        int isAvailable = 1;
+        for (int j = 0; j < requiredBlocks; j++) {
+            if (disk[i + j].data[0] != '\0') {
+                isAvailable = 0;
+                break;
+            }
+        }
+
+        if (isAvailable) {
+            startBlock = i;
+            break;
+        }
+    }
+
+    if (startBlock == -1) {
+        printf("Error: Not enough contiguous blocks available for the file!\n");
+        return -1;
+    }
+ for (int i = 0; i < requiredBlocks; i++) {
+        file->allocatedBlocks[i] = startBlock + i;
+        sprintf(disk[startBlock + i].data, "Data of file in block %d", startBlock + i);
+    }
+    file->fileSize = requiredBlocks;
+    printf("File allocated successfully from block %d to %d.\n", startBlock, startBlock + requiredBlocks - 1);
+    return 0;
+}
+void readFile(struct File *file) {
+    printf("\nReading File (Allocated Blocks: ");
+    for (int i = 0; i < file->fileSize; i++) {
+        printf("%d ", file->allocatedBlocks[i]);
+    }
+    printf("):\n");
+
+    for (int i = 0; i < file->fileSize; i++) {
+        int blockNum = file->allocatedBlocks[i];
+        printf("Block %d: %s\n", blockNum, disk[blockNum].data);
+    }
+}
+
+int main() {
+    initializeDisk();
+
+    struct File file1;
+    int fileSize = 3;
+
+    printf("Allocating file of size %d blocks...\n", fileSize);
+    if (allocateFile(&file1, fileSize) == 0) {
+        readFile(&file1);
+    }
+printDiskState();
+return 0;
+}
