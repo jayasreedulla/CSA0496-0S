@@ -1,0 +1,42 @@
+#include <stdio.h>
+#include <pthread.h>
+#include <unistd.h>
+#define N 5 
+#define M 2  
+pthread_mutex_t mugs[M]; 
+pthread_t philosophers[N];
+void *philosopher(void *arg) {
+int id = *(int *)arg;
+int left_mug = id % M;
+int right_mug = (id + 1) % M;
+while (1) {
+printf("Philosopher %d is thinking...\n", id);
+        sleep(1);
+pthread_mutex_lock(&mugs[left_mug]);
+printf("Philosopher %d picked up left mug %d\n", id, left_mug);
+pthread_mutex_lock(&mugs[right_mug]);
+printf("Philosopher %d picked up right mug %d and is now drinking\n", id, right_mug);
+sleep(2); 
+pthread_mutex_unlock(&mugs[right_mug]);
+printf("Philosopher %d put down right mug %d\n", id, right_mug);
+pthread_mutex_unlock(&mugs[left_mug]);
+printf("Philosopher %d put down left mug %d and is thinking again\n", id, left_mug);
+}
+return NULL;
+}
+int main() 
+{
+int i, ids[N];
+for (i = 0; i < M; i++) {
+pthread_mutex_init(&mugs[i], NULL);
+}
+for (i = 0; i < N; i++) {
+ids[i] = i;
+pthread_create(&philosophers[i], NULL, philosopher, &ids[i])for (i = 0; i < N; i++) {
+        pthread_join(philosophers[i], NULL);
+    }
+for (i = 0; i < M; i++) {
+pthread_mutex_destroy(&mugs[i]);
+}
+return 0;
+}
