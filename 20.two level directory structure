@@ -1,0 +1,40 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/stat.h>  
+#include <dirent.h>    
+#include <string.h>    
+void create_directory(const char *dir_name) {
+if (mkdir(dir_name, 0777) == -1) {
+perror("Error creating directory");
+} else {
+printf("Directory '%s' created successfully.\n", dir_name);
+}
+}
+void list_directory(const char *dir_name) {
+    DIR *dir;
+    struct dirent *entry;
+    dir = opendir(dir_name);
+    if (dir == NULL) {
+        perror("Error opening directory");
+        return;
+    }
+    printf("Contents of directory '%s':\n", dir_name);
+    while ((entry = readdir(dir)) != NULL) {
+        printf("%s\n", entry->d_name);
+    }
+
+    closedir(dir);
+}
+
+int main() {
+    const char *root_dir = "root";
+    const char *sub_dir1 = "root/subdir1";
+    const char *sub_dir2 = "root/subdir2";
+create_directory(root_dir);
+ create_directory(sub_dir1);
+    create_directory(sub_dir2);
+list_directory(root_dir);
+list_directory(sub_dir1);
+list_directory(sub_dir2);
+return 0;
+}
