@@ -1,0 +1,64 @@
+#include <stdio.h>
+#include <stdlib.h>
+int main() {
+int n, head, seek_time = 0, disk_size;
+printf("Enter the number of disk requests: ");
+scanf("%d", &n);
+if (n <= 0) {
+printf("Invalid number of requests.\n");
+return 1;
+}
+int request_queue[n];
+printf("Enter the disk request queue:\n");
+for (int i = 0; i < n; i++) {
+scanf("%d", &request_queue[i]);
+}
+printf("Enter the initial position of the disk head: ");
+scanf("%d", &head);
+printf("Enter the total disk size: ");
+scanf("%d", &disk_size);
+for (int i = 0; i < n - 1; i++) {
+for (int j = i + 1; j < n; j++) {
+if (request_queue[i] > request_queue[j]) {
+int temp = request_queue[i];
+request_queue[i] = request_queue[j];
+request_queue[j] = temp;
+}
+}
+    }
+
+    // SCAN (Elevator) Disk Scheduling
+    printf("\nSCAN (Elevator) Disk Scheduling:\n");
+    printf("Head Movement Sequence: %d", head);
+
+    // Find the point where head should move first
+    int i, start;
+    for (i = 0; i < n; i++) {
+        if (request_queue[i] >= head) {
+            break;
+        }
+    }
+    for (start = i; start < n; start++) {
+        seek_time += abs(head - request_queue[start]);
+        head = request_queue[start];
+        printf(" -> %d", head);
+    }
+
+    if (head < disk_size - 1) {
+        seek_time += abs(head - (disk_size - 1));
+        head = disk_size - 1;
+        printf(" -> %d", head);
+    }
+
+  
+    for (start = i - 1; start >= 0; start--) {
+        seek_time += abs(head - request_queue[start]);
+        head = request_queue[start];
+        printf(" -> %d", head);
+    }
+
+    printf("\nTotal Seek Time: %d\n", seek_time);
+    printf("Average Seek Time: %.2f\n", (float)seek_time / n);
+
+    return 0;
+}
